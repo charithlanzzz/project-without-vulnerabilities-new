@@ -18,7 +18,11 @@ public class LoginController {
   @RequestMapping(value = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
   LoginResponse login(@RequestBody LoginRequest input) {
     User user = User.fetch(input.username);
-    if (Postgres.sha256(input.password).equals(user.hashedPassword)) {
+
+    // Verify user credentials using a secure hash algorithm (e.g., SHA-256)
+    String hashedPassword = Postgres.sha256(input.password);
+
+    if (hashedPassword.equals(user.hashedPassword)) {
       return new LoginResponse(user.token(secret));
     } else {
       throw new Unauthorized("Access Denied");
