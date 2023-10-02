@@ -1,5 +1,7 @@
 package com.scalesec.vulnado;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.security.MessageDigest;
@@ -9,6 +11,32 @@ import java.sql.Statement;
 import java.util.UUID;
 
 public class Postgres {
+
+    public static String md5(String input) {
+        try {
+            // Static getInstance method is called with hashing MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            // digest() method is called to calculate the message digest
+            // of an input; digest() returns an array of bytes
+            byte[] messageDigest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+
+            // Convert byte array into a signum representation
+            BigInteger no = new BigInteger(1, messageDigest);
+
+            // Convert message digest into a hex value
+            String hashtext = no.toString(16);
+
+            // Pad with leading zeros if needed
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+
+            return hashtext;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static Connection connection() {
         try {
