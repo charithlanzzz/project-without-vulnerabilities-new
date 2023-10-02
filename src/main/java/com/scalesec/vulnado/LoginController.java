@@ -14,18 +14,21 @@ public class LoginController {
   @Value("${app.secret}")
   private String secret;
 
-  @CrossOrigin(origins = "*")
+  @CrossOrigin(origins = {"https://example.com", "https://anotherdomain.com"})
   @RequestMapping(value = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
   LoginResponse login(@RequestBody LoginRequest input) {
     User user = User.fetch(input.username);
-    if (Postgres.sha256(input.password).equals(user.hashedPassword)) {
+
+    // Verify user credentials using a secure hash algorithm (e.g., SHA-256)
+    String hashedPassword = Postgres.sha256(input.password);
+
+    if (hashedPassword.equals(user.hashedPassword)) {
       return new LoginResponse(user.token(secret));
     } else {
       throw new Unauthorized("Access Denied");
     }
   }
 }
-
 
 class LoginRequest implements Serializable {
   public String username;
@@ -34,10 +37,7 @@ class LoginRequest implements Serializable {
 
 class LoginResponse implements Serializable {
   public String token;
-
-  public LoginResponse(String msg) {
-    this.token = msg;
-  }
+  public LoginResponse(String msg) { this.token = msg; }
 }
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
