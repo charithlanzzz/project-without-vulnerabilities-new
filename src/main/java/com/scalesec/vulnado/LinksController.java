@@ -13,12 +13,13 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
+import java.util.regex.Pattern;
 
 @RestController
 @EnableAutoConfiguration
 public class LinksController {
   private static final Set<String> ALLOWED_DOMAINS = new HashSet<>(Arrays.asList("example.com", "trusted-domain.com"));
+  private static final Pattern URL_PATTERN = Pattern.compile("^https?://[a-zA-Z0-9.-]+(\\.[a-zA-Z]{2,})?(:\\d{1,5})?(/.*)?$");
 
   @RequestMapping(value = "/links", produces = "application/json")
   List<String> links(@RequestParam String url) throws IOException {
@@ -39,12 +40,15 @@ public class LinksController {
   }
 
   private boolean isValidUrl(String url) {
-    try {
-      URL inputUrl = new URL(url);
-      String host = inputUrl.getHost();
-      return ALLOWED_DOMAINS.contains(host);
-    } catch (Exception e) {
-      return false;
+    if (URL_PATTERN.matcher(url).matches()) {
+      try {
+        URL inputUrl = new URL(url);
+        String host = inputUrl.getHost();
+        return ALLOWED_DOMAINS.contains(host);
+      } catch (Exception e) {
+        return false;
+      }
     }
+    return false;
   }
 }
