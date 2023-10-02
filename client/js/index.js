@@ -25,15 +25,18 @@ $(document).ready(function(){
 
   function fetchComments() {
     $.get("http://localhost:8080/comments", function(data){
-      $('#comments-container').html('')
+      $('#comments-container').html('');
       data.forEach(function(comment){
-        if (comment.body.indexOf("<script>") < 0) {
-          $("#comments-container").append(template(comment));
-        }
+        // Sanitize the comment.body to prevent script injection
+        var sanitizedBody = DOMPurify.sanitize(comment.body);
+
+        // Append the sanitized content to the container
+        $("#comments-container").append(template({ body: sanitizedBody }));
       });
       setupDeleteCommentHandler();
     });
   }
+
 
   //Event Handlers
   $('#submit-comment').click(function(){
