@@ -12,27 +12,15 @@ import java.util.UUID;
 
 public class Postgres {
 
-    public static String md5(String input) {
+    public static String sha256(String input) {
         try {
-            // Static getInstance method is called with hashing MD5
-            MessageDigest md = MessageDigest.getInstance("MD5");
-
-            // digest() method is called to calculate the message digest
-            // of an input; digest() returns an array of bytes
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] messageDigest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-
-            // Convert byte array into a signum representation
-            BigInteger no = new BigInteger(1, messageDigest);
-
-            // Convert message digest into a hex value
-            String hashtext = no.toString(16);
-
-            // Pad with leading zeros if needed
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : messageDigest) {
+                hexString.append(String.format("%02x", b));
             }
-
-            return hashtext;
+            return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -87,19 +75,7 @@ public class Postgres {
     }
 
     // Java program to calculate SHA-256 hash value
-    public static String sha256(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] messageDigest = md.digest(input.getBytes());
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : messageDigest) {
-                hexString.append(String.format("%02x", b));
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     private static void insertUser(String username, String password) {
         String sql = "INSERT INTO users (user_id, username, password, created_on) VALUES (?, ?, ?, current_timestamp)";
